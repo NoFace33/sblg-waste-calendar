@@ -11,10 +11,8 @@ calendrier supportant le format iCalendar).
 3. Collez l'URL suivante :
 
 ```
-https://raw.githubusercontent.com/VOTRE_USERNAME/VOTRE_REPO/main/collectes-sblg.ics
+https://raw.githubusercontent.com/NoFace33/sblg-waste-calendar/main/collectes-sblg.ics
 ```
-
-> Remplacez `VOTRE_USERNAME` et `VOTRE_REPO` par vos vraies valeurs.
 
 Google Calendar rafraîchit les abonnements ICS toutes les 24 à 48 heures.
 
