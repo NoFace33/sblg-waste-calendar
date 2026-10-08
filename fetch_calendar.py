@@ -300,7 +300,7 @@ def fetch_all_events(start: date, end: date) -> list[tuple[str, str]]:
 def build_ics(events: list[tuple[str, str]]) -> str:
     """Builds the ICS file content from a list of (date_str, title) tuples."""
     import datetime
-    now_stamp = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    now_stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
     lines = [
         "BEGIN:VCALENDAR\r\n",
