@@ -20,9 +20,11 @@ Window logic:
 import json
 import re
 import sys
+import time
 import uuid
 import urllib.request
 import urllib.parse
+import urllib.error
 from datetime import date, timedelta
 from html.parser import HTMLParser
 
@@ -68,8 +70,8 @@ DEFAULT_DESCRIPTION = "Consulter villesblg.ca pour les consignes complètes."
 # Helpers
 # ---------------------------------------------------------------------------
 
-def fetch_url(url: str, post_data: dict | None = None) -> str:
-    """Simple HTTP GET or POST, returns response body as string."""
+def fetch_url(url: str, post_data: dict | None = None, retries: int = 3) -> str:
+    """Simple HTTP GET or POST, with retry-with-backoff on transient 5xx errors."""
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -87,8 +89,17 @@ def fetch_url(url: str, post_data: dict | None = None) -> str:
     else:
         req = urllib.request.Request(url, headers=headers)
 
-    with urllib.request.urlopen(req, timeout=20) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+    for attempt in range(1, retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                return resp.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as e:
+            if e.code >= 500 and attempt < retries:
+                delay = 5 * (2 ** (attempt - 1))
+                print(f"  HTTP {e.code}, retrying in {delay}s (attempt {attempt}/{retries})...", flush=True)
+                time.sleep(delay)
+                continue
+            raise
 
 
 def extract_nonce(html: str) -> str:
